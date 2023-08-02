@@ -1,7 +1,12 @@
 path#linea {
     fill: none;
     stroke-width: 1px;
-    stroke: red;
+    stroke: black;
+}
+
+.line{
+    fill:red;
+    stroke-width: 1px;
 }
 
 .Gisele-Bündchen{
@@ -34,6 +39,11 @@ path#linea {
 
 .Camila-Morrone{
     fill:#ffa600
+}
+
+.bar:hover{
+    stroke: black;
+    stroke-width: 2
 }
 
 

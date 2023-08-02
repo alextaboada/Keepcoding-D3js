@@ -20,7 +20,7 @@ const axisGroup = svg.append('g').attr('class','axisGroup')
 const xAxisGroup = axisGroup.append("g").attr("class", "xAxisGroup").attr("transform", `translate(${margin.left}, ${height - margin.bottom})`)
 const yAxisGroup = axisGroup.append("g").attr("class", "yAxisGroup").attr("transform", `translate(${margin.left}, ${margin.top})`)
 
-const x = d3.scaleBand().range([0, width - margin.left - margin.right])
+const x = d3.scaleBand().range([0, width - margin.left - margin.right]).padding(0.1)
 const y0 = d3.scaleLinear().range([height - margin.top - margin.bottom, 0])
 const y1 = d3.scaleLinear().range([height - margin.top - margin.bottom,0])
 
@@ -51,6 +51,14 @@ d3.csv('data/data.csv').then(data => {
         .attr('y', d=> y0(d.age))
         .attr('height', d => height - margin.top - margin.bottom - y0(d.age))
         .attr('width',x.bandwidth())
+        .on('mouseover', (d) => {
+            if(25-d.age ===0){
+                d3.select('#name').text(`Has seleccionado a ${d.name} que tiene ${d.age} años. ADIOS`)
+            }else{
+                d3.select('#name').text(`Has seleccionado a ${d.name} que tiene ${d.age} años. Solamente quedan ${25-d.age} años de relacion`)
+            }
+            
+        })
         
 
     elementGroup.datum(data)
@@ -59,4 +67,12 @@ d3.csv('data/data.csv').then(data => {
         .attr("d", d3.line()
             .x(d => x(d.year))
             .y(d => y1(age(d.year))))
+
+    elementGroup.append( "line" )
+        .attr("x1", 0 )
+        .attr("x2", width - margin.left - margin.right )
+        .attr("y1", y1(25))   // whatever the y-val should be
+        .attr("y2", y1(25))
+        .attr('stroke', 'red')
+        .attr('stroke-width', 1.5);
 })
