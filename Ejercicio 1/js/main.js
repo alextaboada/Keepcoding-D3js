@@ -39,7 +39,7 @@ d3.csv("data/WorldCup.csv").then(data => {
     //dibujar dominio de y y ticks de yAxis, ya que será constante en cualquier filtro
     y.domain([0,calculate_max_y_value(data)]) 
     yAxis.ticks(calculate_max_y_value(data))
-
+    x.domain(calculate_winners(data.map(d=>d.Winner)))
     update(data)
     slider()
 })
@@ -49,11 +49,13 @@ function calculate_max_y_value(data){
     return d3.max(total_winners, d => total_winners.filter(item => item === d).length)
 }
 
+function calculate_winners(data){
+    return [...new Set(data)]
+}
+
 // update:
 function update(data) {
     winners = data.map(d => d.Winner)
-
-    x.domain(winners)
 
     xAxisGroup.call(xAxis)
     yAxisGroup.call(yAxis)
@@ -65,13 +67,14 @@ function update(data) {
         .attr("y", d => y(winners.filter(item => item === d).length))
         .attr("width", x.bandwidth()) //Acto de fe
         .attr("height", d => height - margin.top - margin.bottom - y(winners.filter(item => item === d).length))
+        //.attr("xlink:href",function(d) {return d.data.image;})
 
 
     elements
-        .attr("x", d => x(d))
-        .attr("width", x.bandwidth())
         .transition()
         .duration(500)
+        .attr("x", d => x(d))
+        .attr("width", x.bandwidth())
         .attr("height", d => height - margin.top - margin.bottom - y(winners.filter(item => item === d).length))
         .attr("y", d => y(winners.filter(item => item === d).length))   
 
