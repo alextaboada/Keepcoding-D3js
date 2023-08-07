@@ -11,10 +11,10 @@ const axisGroup = svg.append("g").attr("class", "axisGroup")
 const xAxisGroup = axisGroup.append("g").attr("class", "xAxisGroup").attr("transform", `translate(${margin.left}, ${height-margin.bottom})`)
 const yAxisGroup = axisGroup.append("g").attr("class", "yAxisGroup").attr("transform", `translate(${margin.left}, ${margin.top})`)
 
-const x = d3.scaleTime().range([0, width - margin.left - margin.right])
+const x = d3.scaleBand().range([0, width - margin.left - margin.right])
 const y = d3.scaleLinear().range([height - margin.top - margin.bottom ,0])
 
-const xAxis = d3.axisBottom().scale(x)
+const xAxis = d3.axisBottom().scale(x).ticks(258)
 const yAxis = d3.axisLeft().scale(y)
 
 d3.csv('data/ibex.csv').then(data =>{
@@ -27,19 +27,39 @@ d3.csv('data/ibex.csv').then(data =>{
         d.close = +d.close
         d.volume = d.volume
     })
-    console.log(data);
-    x.domain(d3.extent(data.map(d=>d.date)))
+    //Definimos los dominios y llamamos a los ejes
+    x.domain(data.map(d => d.date))
     y.domain(d3.extent(data.map(d=>d.open)))
-
     xAxisGroup.call(xAxis)
     yAxisGroup.call(yAxis)
 
-    elementGroup.datum(data)
-        .append("path")
-        .attr("id", "linea")
-        .attr("d", d3.line()
-            .x(d => x(d.date))
-            .y(d => y(d.open)))
+    //Para cada linea del csv, dibujamos los valores
+    let previousclose = 0
+    data.forEach(d => {
+        console.log(d);
+        previousclose = d.close
+        
+        //Pintamos cada rectangulo correspondiente a la relacion open/close
+        let rect = elementGroup.append('rect')
+            .attr('class','rect')
+            .attr('x', x(d.date))
+            .attr('width', x.bandwidth())
+            .attr('height',y(Math.min(d.open,d.close)) - y(Math.max(d.open, d.close)))
+            .attr('y',y(Math.max(d.open,d.close)))
+            .attr('fill', (d.open > d.close ? 'red' : 'green'))
+            .attr('stroke', 'black')
+        
+        //Pintamos las lineas de high/low
+        let line = elementGroup.append('line')
+            .attr('class','line')
+            .attr('x1', x(d.date)+ (width/x.domain().length)/2)
+            .attr('x2', x(d.date)+ (width/x.domain().length)/2)		    
+            .attr('y1', y(d.high))
+            .attr('y2', y(d.low))
+            .attr("stroke", d.open > d.close ? 'red' : 'green')
+            .attr('stroke-width',1)
+
+            
+            //para calcular los volumenes, guardamos el valor anterior
+    });
 })
-
-
