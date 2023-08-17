@@ -1,11 +1,8 @@
-const width = 800
-const height = 600
-const margin = {
-    top:10, 
-    right: 40,
-    bottom: 40,
-    left:40,
-}
+
+const margin = { top:10, right: 40, bottom: 40, left:40}
+const width = window.innerWidth - margin.left - margin.right
+const heightSlider = 100
+const height = window.innerHeight - margin.top - margin.bottom - heightSlider
 
 //Definición de grafico
 const svg = d3.select('#chart').append('svg').attr('width',width).attr('height',height)
@@ -53,7 +50,6 @@ function calculate_winners(data){
     return [...new Set(data)]
 }
 
-// update:
 function update(data) {
     winners = data.map(d => d.Winner)
 
@@ -63,20 +59,17 @@ function update(data) {
     const elements = elementGroup.selectAll("rect").data(winners)
     elements.enter()
         .append("rect")
-        .attr("x", d => x(d))
-        .attr("y", d => y(winners.filter(item => item === d).length))
-        .attr("width", x.bandwidth()) //Acto de fe
-        .attr("height", d => height - margin.top - margin.bottom - y(winners.filter(item => item === d).length))
-        //.attr("xlink:href",function(d) {return d.data.image;})
-
-
-    elements
-        .transition()
-        .duration(500)
+        .attr('class',d => `${d} bar`)
         .attr("x", d => x(d))
         .attr("width", x.bandwidth())
+        .attr("y", d => y(winners.filter(item => item === d).length))
         .attr("height", d => height - margin.top - margin.bottom - y(winners.filter(item => item === d).length))
+
+    elements
+        .attr("x", d => x(d))
+        .attr("width", x.bandwidth())
         .attr("y", d => y(winners.filter(item => item === d).length))   
+        .attr("height", d => height - margin.top - margin.bottom - y(winners.filter(item => item === d).length))
 
     elements.exit().remove()
 
@@ -109,7 +102,7 @@ function slider() {
             .select('div#slider-time')  // div donde lo insertamos
             .append('svg')
             .attr('width', width - margin.left - margin.right)
-            .attr('height', 100)
+            .attr('height', heightSlider)
             .append('g')
             .attr('class','slider')
             .attr('transform', 'translate(30,30)');
