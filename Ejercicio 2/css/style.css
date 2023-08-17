@@ -4,6 +4,13 @@ path#linea {
     stroke: black;
 }
 
+.photo{
+    stroke-width: 1px;
+    stroke: black;
+    fill: white;
+    stroke-dasharray: 2;
+}
+
 .line{
     fill:red;
     stroke-width: 1px;
@@ -11,6 +18,10 @@ path#linea {
 
 .Gisele-Bündchen{
     fill:#003f5c
+}
+
+.opa1{
+    opacity: 1;
 }
 
 .Bar-Rafaeli{
@@ -41,9 +52,13 @@ path#linea {
     fill:#ffa600
 }
 
-.bar:hover{
+.bar{
+    opacity: 0.5;
+}
+
+bar:hover{
     stroke: black;
-    stroke-width: 2
+    stroke-width: 2;
 }
 
 

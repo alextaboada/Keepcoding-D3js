@@ -1,8 +1,8 @@
 const totalWidth = window.innerWidth;
 const totalHeight = window.innerHeight;
-var margin = { top : 10, left : 100, bottom : 30 , right : 10 }
-const width = totalWidth - margin.left - margin.right;
-const height = totalHeight - margin.top - margin.bottom;
+var margin = { top : 10, left : 70, bottom : 30 , right : 10 }
+const width = totalWidth- margin.right - margin.left;
+const height = totalHeight;
 const parseDate = d3.timeParse("%d/%m/%Y")
 
 const candleHeight = height * 0.70
