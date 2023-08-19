@@ -1,6 +1,6 @@
 const totalWidth = window.innerWidth;
 const totalHeight = window.innerHeight*0.97;
-var margin = { top : 10, left : 70, bottom : 30 , right : 10 }
+const margin = { top : 10, left : 70, bottom : 30 , right : 10 }
 const width = totalWidth- margin.right - margin.left;
 const height = totalHeight;
 const parseDate = d3.timeParse('%d/%m/%Y')
@@ -11,11 +11,11 @@ const volumeHeight = height * 0.30
 
 
 //Añadimos el svg de velas a #chart y lo configuramos, tanto svg como grupos como ejes
-const svg = d3.select("#chart").append("svg").attr("width", width).attr("height", candleHeight-margin.bottom)
-const elementGroup = svg.append("g").attr("class", "elementGroup").attr("transform", `translate(${margin.left}, ${margin.top})`)
-const axisGroup = svg.append("g").attr("class", "axisGroup")
-const xAxisGroup = axisGroup.append("g").attr("class", "xAxisGroup").attr("transform", `translate(${margin.left}, ${candleHeight - margin.bottom})`)
-const yAxisGroup = axisGroup.append("g").attr("class", "yAxisGroup").attr("transform", `translate(${margin.left}, ${margin.top})`)
+const svg = d3.select('#chart').append('svg').attr('width', width).attr('height', candleHeight-margin.bottom)
+const elementGroup = svg.append('g').attr('class', 'elementGroup').attr('transform', `translate(${margin.left}, ${margin.top})`)
+const axisGroup = svg.append('g').attr('class', 'axisGroup')
+const xAxisGroup = axisGroup.append('g').attr('class', 'xAxisGroup').attr('transform', `translate(${margin.left}, ${candleHeight - margin.bottom})`)
+const yAxisGroup = axisGroup.append('g').attr('class', 'yAxisGroup').attr('transform', `translate(${margin.left}, ${margin.top})`)
 
 const x = d3.scaleBand().range([0, width - margin.left - margin.right])
 const y = d3.scaleLinear().range([candleHeight - margin.top - margin.bottom ,0])
@@ -46,10 +46,10 @@ d3.csv('data/ibex.csv').then(data =>{
         d.close = +d.close
         d.volume = +d.volume
     })
+
     //Definimos los dominios y llamamos a los ejes
     x.domain(data.map(d => d.date))
-    //TODO: revisar doominios de velas. debe ser el menor y mayor de ambos ejes
-    y.domain(d3.extent(data.map(d=>d.open)))
+    y.domain([d3.min(data.map(d => d.low)), d3.max(data.map(d => d.high))])
     xAxisGroup.call(xAxis)
     yAxisGroup.call(yAxis)
 
@@ -57,36 +57,36 @@ d3.csv('data/ibex.csv').then(data =>{
     yVolume.domain(d3.extent(data.map(d=>d.volume)))
     xVolumeAxis.tickValues(xVolume.domain().filter(function(d,i){ return !(i%10)}))
     volumeXAxisGroup.call(xVolumeAxis)
-        .selectAll("text")
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", "-.55em")
-        .attr("transform", "rotate(-25)" )
+        .selectAll('text')
+        .style('text-anchor', 'end')
+        .attr('dx', '-.8em')
+        .attr('dy', '-.55em')
+        .attr('transform', 'rotate(-25)' )
     volumeYAxisGroup.call(yVolumeAxis)
 
     //Para cada linea del csv, dibujamos los valores
     let previousclose = 0
     data.forEach(d => {
         //Definimos el tooltip y las funciones de movimiento
-        let tooltip = d3.select('#chart')
+        const tooltip = d3.select('#chart')
             .append('div')
             .style('opacity', 0)
             .attr('class', 'tooltip')
 
-        let mouseover = function() {
+        const mouseover = function() {
             tooltip
                 .style('opacity', 1)
             d3.select(this)
                 .style('stroke', 'black')
                 .style('opacity', 1)
         }
-        let mousemove = function() {
+        const mousemove = function() {
             tooltip
-                .html(`Open:<b>${d.open}</b><br>Close:<b>${d.close}</b><br>High:<b>${d.high}</b><br>Low:<b>${d.low}</b><br>Volume:<b>${d.volume}</b>`)
+                .html(`Fecha:<b>${d.date.toLocaleDateString('es-ES')}</b><br>Open:<b>${d.open}</b><br>Close:<b>${d.close}</b><br>High:<b>${d.high}</b><br>Low:<b>${d.low}</b><br>Volume:<b>${d.volume}</b>`)
                 .style('left', (d3.mouse(this)[0]+70)+'px')
-                .style('top', (d3.mouse(this)[1])+'px')
-        }
-        var mouseleave = function() {
+                .style('top', (d3.mouse(this)[1])+'px') 
+           }
+        const mouseleave = function() {
             tooltip
                 .style('opacity', 0)
             d3.select(this)
@@ -94,9 +94,8 @@ d3.csv('data/ibex.csv').then(data =>{
                 .style('opacity', 0.8)
         }
 
-
         //Pintamos cada rectangulo correspondiente a la relacion open/close
-        let rect = elementGroup.append('rect')
+        const rect = elementGroup.append('rect')
             .attr('class','rect')
             .attr('x', x(d.date))
             .attr('width', x.bandwidth())
@@ -110,18 +109,18 @@ d3.csv('data/ibex.csv').then(data =>{
             .on('mouseleave', mouseleave)
         
         //Pintamos las lineas de high/low
-        let line = elementGroup.append('line')
+        const line = elementGroup.append('line')
             .attr('class','line')
             .attr('x1', x(d.date)+ (width/x.domain().length)/2)
             .attr('x2', x(d.date)+ (width/x.domain().length)/2)		    
             .attr('y1', y(d.high))
             .attr('y2', y(d.low))
-            .attr("stroke", d.open > d.close ? 'red' : 'green')
+            .attr('stroke', d.open > d.close ? 'red' : 'green')
             .attr('stroke-width',1)
 
             
         //para calcular los volumenes, guardamos el valor anterior
-        let volumeRect = volumeElementGroup.append('rect')
+        const volumeRect = volumeElementGroup.append('rect')
             .attr('class','volumeRect')
             .attr('x', xVolume(d.date))
             .attr('y', yVolume(d.volume))
