@@ -63,11 +63,38 @@ d3.csv('data/ibex.csv').then(data =>{
         .attr("dy", "-.55em")
         .attr("transform", "rotate(-25)" )
     volumeYAxisGroup.call(yVolumeAxis)
-    
+
     //Para cada linea del csv, dibujamos los valores
     let previousclose = 0
     data.forEach(d => {
-        
+        //Definimos el tooltip y las funciones de movimiento
+        let tooltip = d3.select('#chart')
+            .append('div')
+            .style('opacity', 0)
+            .attr('class', 'tooltip')
+
+        let mouseover = function() {
+            tooltip
+                .style('opacity', 1)
+            d3.select(this)
+                .style('stroke', 'black')
+                .style('opacity', 1)
+        }
+        let mousemove = function() {
+            tooltip
+                .html(`Open:<b>${d.open}</b><br>Close:<b>${d.close}</b><br>High:<b>${d.high}</b><br>Low:<b>${d.low}</b><br>Volume:<b>${d.volume}</b>`)
+                .style('left', (d3.mouse(this)[0]+70)+'px')
+                .style('top', (d3.mouse(this)[1])+'px')
+        }
+        var mouseleave = function() {
+            tooltip
+                .style('opacity', 0)
+            d3.select(this)
+                .style('stroke', 'none')
+                .style('opacity', 0.8)
+        }
+
+
         //Pintamos cada rectangulo correspondiente a la relacion open/close
         let rect = elementGroup.append('rect')
             .attr('class','rect')
@@ -75,19 +102,12 @@ d3.csv('data/ibex.csv').then(data =>{
             .attr('width', x.bandwidth())
             .attr('height',y(Math.min(d.open,d.close)) - y(Math.max(d.open, d.close)))
             .attr('y',y(Math.max(d.open,d.close)))
-            .attr('fill', (d.open > d.close ? 'red' : 'green'))
-            .attr('stroke', 'black')
-            .on('mouseover', d=>{
-                Tooltip.style("opacity", 1).style("stroke", "black").style("opacity", 1)
-            })
-            .on('mousemove', d => {
-                Tooltip.html("The exact value of<br>this cell is: ")
-                    .style("left", "1px")
-                    .style("top", "1px")
-            })
-            .on('mouseleave', d => {
-                Tooltip.style("opacity", 0).style("stroke", "none").style("opacity", 0.8)
-            })
+            .style('fill', (d.open > d.close ? 'red' : 'green'))
+            .style('stroke', 'none')
+            .style('opacity','0.8')
+            .on('mouseover', mouseover)
+            .on('mousemove', mousemove)
+            .on('mouseleave', mouseleave)
         
         //Pintamos las lineas de high/low
         let line = elementGroup.append('line')

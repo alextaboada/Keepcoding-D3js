@@ -7,3 +7,17 @@
 .more{
     fill:red
 }
+
+.xAxisGroup .tick{
+    display: none;
+}
+
+.tooltip {
+    position: absolute;
+    pointer-events: none;
+    color: #000;
+    background-color: #FFF;
+    border:2px solid #000;
+    border-radius: 5px;
+    padding: 5px
+  }
