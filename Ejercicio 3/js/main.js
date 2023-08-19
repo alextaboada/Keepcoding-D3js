@@ -1,16 +1,17 @@
 const totalWidth = window.innerWidth;
-const totalHeight = window.innerHeight;
+const totalHeight = window.innerHeight*0.97;
 var margin = { top : 10, left : 70, bottom : 30 , right : 10 }
 const width = totalWidth- margin.right - margin.left;
 const height = totalHeight;
-const parseDate = d3.timeParse("%d/%m/%Y")
+const parseDate = d3.timeParse('%d/%m/%Y')
+const formatTime = d3.timeFormat('%d/%m/%Y');
 
 const candleHeight = height * 0.70
 const volumeHeight = height * 0.30
 
 
 //Añadimos el svg de velas a #chart y lo configuramos, tanto svg como grupos como ejes
-const svg = d3.select("#chart").append("svg").attr("width", width).attr("height", candleHeight)
+const svg = d3.select("#chart").append("svg").attr("width", width).attr("height", candleHeight-margin.bottom)
 const elementGroup = svg.append("g").attr("class", "elementGroup").attr("transform", `translate(${margin.left}, ${margin.top})`)
 const axisGroup = svg.append("g").attr("class", "axisGroup")
 const xAxisGroup = axisGroup.append("g").attr("class", "xAxisGroup").attr("transform", `translate(${margin.left}, ${candleHeight - margin.bottom})`)
@@ -32,7 +33,7 @@ const volumeYAxisGroup = volumeAxisGroup.append('g').attr('class','volumeYAxisGr
 const xVolume = d3.scaleBand().range([0, width - margin.left - margin.right])
 const yVolume = d3.scaleLinear().range([volumeHeight - margin.bottom - margin.top, 0])
 
-const xVolumeAxis = d3.axisBottom().scale(xVolume)
+const xVolumeAxis = d3.axisBottom().scale(xVolume).tickFormat(formatTime)
 const yVolumeAxis = d3.axisLeft().scale(yVolume)
 
 d3.csv('data/ibex.csv').then(data =>{
@@ -46,15 +47,21 @@ d3.csv('data/ibex.csv').then(data =>{
         d.volume = +d.volume
     })
     //Definimos los dominios y llamamos a los ejes
-    //TODO: revisar doominios de velas. debe ser el menor y mayor de ambos ejes
     x.domain(data.map(d => d.date))
+    //TODO: revisar doominios de velas. debe ser el menor y mayor de ambos ejes
     y.domain(d3.extent(data.map(d=>d.open)))
     xAxisGroup.call(xAxis)
     yAxisGroup.call(yAxis)
 
     xVolume.domain(data.map(d => d.date))
     yVolume.domain(d3.extent(data.map(d=>d.volume)))
+    xVolumeAxis.tickValues(xVolume.domain().filter(function(d,i){ return !(i%10)}))
     volumeXAxisGroup.call(xVolumeAxis)
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", "-.55em")
+        .attr("transform", "rotate(-25)" )
     volumeYAxisGroup.call(yVolumeAxis)
     
     //Para cada linea del csv, dibujamos los valores
@@ -70,6 +77,17 @@ d3.csv('data/ibex.csv').then(data =>{
             .attr('y',y(Math.max(d.open,d.close)))
             .attr('fill', (d.open > d.close ? 'red' : 'green'))
             .attr('stroke', 'black')
+            .on('mouseover', d=>{
+                Tooltip.style("opacity", 1).style("stroke", "black").style("opacity", 1)
+            })
+            .on('mousemove', d => {
+                Tooltip.html("The exact value of<br>this cell is: ")
+                    .style("left", "1px")
+                    .style("top", "1px")
+            })
+            .on('mouseleave', d => {
+                Tooltip.style("opacity", 0).style("stroke", "none").style("opacity", 0.8)
+            })
         
         //Pintamos las lineas de high/low
         let line = elementGroup.append('line')
@@ -99,6 +117,5 @@ d3.csv('data/ibex.csv').then(data =>{
             volumeRect.attr('fill', 'green')
         }
         previousclose = d.close
-
     });
 })
